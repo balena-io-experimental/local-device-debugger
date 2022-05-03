@@ -1,0 +1,17 @@
+version: '2'
+volumes:
+  resin-data:
+services:
+  device-check:
+    build:
+      context: ./device-check
+      dockerfile: Dockerfile
+    network_mode: host
+    volumes:
+      - 'resin-data:/data'
+    restart: 'no'
+    environment:
+      - 'API_ENV=balena-cloud.com'
+      - 'DEVICE_UUID=uuid_of_checked_device'
+      - 'BALENA_TOKEN=balena_cloud_token'
+    privileged: true
