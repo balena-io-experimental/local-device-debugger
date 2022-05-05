@@ -14,19 +14,25 @@ balena support enable --device ${DEVICE_UUID}
 mkdir -p /root/.ssh/ && cp ./id_rsa_testing /root/.ssh/id_rsa
 eval `ssh-agent -s`
 ssh-add
+mkdir -p logs
 
-# For local network devices that are offline in the API we need to use the device IP
-DEVICE_IP=$(balena device ${DEVICE_UUID} | grep "IP ADDRESS" | cut -f2 -d":" | sed 's/^ *//' | sed 's/ *$//' | cut -f1 -d" ")
+pushd /usr/src/local-device-debugger/logs/
+/usr/src/local-device-debugger/microServer.py &
+popd
+
+HOSTNAME="${DEVICE_UUID:0:7}.local"
+DEVICE_IP=$(avahi-resolve-host-name ${HOSTNAME} -4 | awk '{ print $2 }')
 
 for script in ${DIAGNOSTICS_SCRIPTS[@]}; do
     curr_script=$(echo ${script} | cut -f1 -d'.')
     DIAGNOSTICS_LOG="device_${curr_script}_${DEVICE_UUID}_${NOW}.log"
     echo "[INFO] Will run ${curr_script} on local device ${DEVICE_UUID} - ${DEVICE_IP}. This may take a few minutes."
-    echo "wget ${DIAGNOSTICS_URL}${script} -O /tmp/${script} && bash /tmp/${script}" | balena ssh ${DEVICE_IP} > ${DIAGNOSTICS_LOG}
-    echo "Finished running ${curr_script} on device ${DEVICE_UUID}. Log file saved as ${DIAGNOSTICS_LOG}"
+    echo "wget ${DIAGNOSTICS_URL}${script} -O /tmp/${script} && bash /tmp/${script}" | balena ssh ${DEVICE_IP} > ./logs/${DIAGNOSTICS_LOG}
+    echo "Finished running ${curr_script} on device ${DEVICE_UUID}. Log file saved in logs/${DIAGNOSTICS_LOG}"
 done
 
-# Don't exit the process
+echo "[INFO] Enable public device url and navigate to this device's URL to inspect the log files"
+
 while true; do
     sleep 1
 done

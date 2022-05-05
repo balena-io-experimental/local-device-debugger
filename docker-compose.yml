@@ -12,6 +12,9 @@ services:
     restart: 'no'
     environment:
       - 'API_ENV=balena-cloud.com'
-      - 'DEVICE_UUID=uuid_of_checked_device'
-      - 'BALENA_TOKEN=balena_cloud_token'
+      - 'DEVICE_UUID=<troubleshooted device uuid>'
+      - 'BALENA_TOKEN=<session token from balena-cloud>'
+      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket'
     privileged: true
+    labels:
+        io.balena.features.dbus: '1'
