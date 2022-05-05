@@ -1,5 +1,6 @@
 #!/bin/bash
 
+avahi-daemon --daemonize --no-drop-root
 DIAGNOSTICS_URL="https://raw.githubusercontent.com/balena-io-modules/device-diagnostics/master/scripts/"
 DIAGNOSTICS_SCRIPTS=("diagnose.sh" "checks.sh")
 NOW=$(date +"%Y-%m-%d-%H-%M")
